@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Alisa - Game Edukasi SD SMK Cefada RPL</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Fredoka & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #fae8ff 100%);
+            min-height: 100vh;
+        }
+        .pop-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .pop-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px -8px rgba(99, 102, 241, 0.25);
+        }
+        .bounce-slow {
+            animation: bounce 3s infinite;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased flex flex-col justify-between min-h-screen">
+
+    <header class="bg-white/90 backdrop-blur-md shadow-sm border-b border-indigo-100 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                    🎒
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-indigo-900 leading-tight">Petualangan Alisa</h1>
+                    <p class="text-xs text-indigo-600 font-semibold">SMK Cefada &bull; Rekayasa Perangkat Lunak</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="score-badge" class="hidden bg-amber-100 border border-amber-200 text-amber-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-star text-amber-500"></i> <span id="current-score">0</span> Poin
+                </div>
+                <button onclick="restartGame()" id="reset-btn" class="hidden bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition border border-indigo-200">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Beranda
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-2xl w-full mx-auto p-4 my-auto flex-grow flex flex-col justify-center">
+        
+        <!-- Welcome Screen -->
+        <div id="screen-welcome" class="bg-white p-6 sm:p-10 rounded-3xl shadow-xl border border-indigo-50 text-center space-y-6">
+            <div class="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner bounce-slow">
+                ✨👧🏻
+            </div>
+            <div class="space-y-2">
+                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Edukasi Anak SD Kelas 1-6</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-indigo-900">Selamat Datang di Dunia Belajar Alisa!</h2>
+                <p class="text-slate-600 text-sm sm:text-base">
+                    Pilih kategori tantangan seru di bawah ini untuk mulai bermain dan menguji kemampuanmu bersama Alisa!
+                </p>
+            </div>
+
+            <!-- Subject Selection Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <button onclick="startGame('math')" class="pop-card p-5 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-2xl shadow-md text-left flex items-center gap-4 cursor-pointer">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">➕</div>
+                    <div>
+                        <h4 class="font-bold text-base">Matematika Seru</h4>
+                        <p class="text-xs text-indigo-100">Hitung cepat, tambah, kurang, kali</p>
+                    </div>
+                </button>
+                <button onclick="startGame('logic')" class="pop-card p-5 bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white rounded-2xl shadow-md text-left flex items-center gap-4 cursor-pointer">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">🧠</div>
+                    <div>
+                        <h4 class="font-bold text-base">Pengetahuan Umum & Logika</h4>
+                        <p class="text-xs text-violet-100">Sains, alam, dan pengetahuan umum</p>
+                    </div>
+                </button>
+            </div>
+
+            <div class="pt-2 text-xs text-slate-400 border-t border-slate-100 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-code text-indigo-500"></i> Karya Siswa/I RPL &bull; SMK Cefada
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="screen-quiz" class="hidden bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-indigo-50 space-y-6">
+            <div class="flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <span id="question-category" class="text-indigo-600">Kategori</span>
+                <span id="question-progress">Soal 1 dari 5</span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-indigo-600 h-full w-1/5 transition-all duration-300"></div>
+            </div>
+
+            <div class="py-4 text-center">
+                <h3 id="question-text" class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
+                    Pertanyaan akan muncul di sini...
+                </h3>
+            </div>
+
+            <!-- Options Grid -->
+            <div id="options-container" class="grid grid-cols-1 gap-3">
+                <!-- Dynamically populated options -->
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="screen-result" class="hidden bg-white p-6 sm:p-10 rounded-3xl shadow-xl border border-indigo-50 text-center space-y-6">
+            <div class="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner animate-bounce">
+                🏆
+            </div>
+            <div class="space-y-2">
+                <h2 id="result-title" class="text-2xl sm:text-3xl font-extrabold text-indigo-900">Luar Biasa!</h2>
+                <p id="result-message" class="text-slate-600 text-sm">
+                    Kamu berhasil menuntaskan seluruh tantangan dengan gemilang.
+                </p>
+                <div class="text-4xl font-extrabold text-indigo-600 pt-2" id="final-score">100 Poin</div>
+            </div>
+
+            <button onclick="restartGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-200 transition cursor-pointer">
+                Main Lagi <i class="fa-solid fa-arrow-rotate-right ml-2"></i>
+            </button>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-indigo-100 py-4 mt-8 text-center text-xs text-slate-500">
+        <div class="max-w-4xl mx-auto px-4 space-y-1">
+            <p class="font-bold text-indigo-900">Hak Cipta &copy; 2026 SMK Cefada - Jurusan Rekayasa Perangkat Lunak (RPL)</p>
+            <p>Dikembangkan khusus untuk media pembelajaran interaktif "Alisa" Sekolah Dasar</p>
+        </div>
+    </footer>
+
+    <script>
+        const mathQuestions = [
+            { question: "Berapa hasil dari 15 + 8?", options: ["21", "23", "25", "20"], correct: 1 },
+            { question: "Ibu membeli 24 buah apel, lalu diberikan kepada Ani 9 buah. Sisa apel ibu adalah?", options: ["13", "14", "15", "16"], correct: 2 },
+            { question: "Berapa hasil perkalian dari 7 x 6?", options: ["42", "36", "48", "49"], correct: 0 },
+            { question: "Budi memiliki 3 kotak kelereng. Setiap kotak berisi 10 kelereng. Total kelereng Budi?", options: ["20", "25", "30", "35"], correct: 2 },
+            { question: "Hasil dari 50 dibagi 5 adalah?", options: ["5", "10", "15", "20"], correct: 1 }
+        ];
+
+        const logicQuestions = [
+            { question: "Hewan apa yang bernapas menggunakan insang di dalam air?", options: ["Kucing", "Ikan", "Burung", "Kelinci"], correct: 1 },
+            { question: "Benda langit apa yang tampak bersinar paling terang pada malam hari selain bintang?", options: ["Matahari", "Bulan", "Pelangi", "Komet"], correct: 1 },
+            { question: "Tumbuhan hijau membuat makanannya sendiri melalui proses apa?", options: ["Fotosintesis", "Respirasi", "Evaporasi", "Fermentasi"], correct: 0 },
+            { question: "Ibu kota negara Kesatuan Republik Indonesia saat ini adalah?", options: ["Bandung", "Surabaya", "Jakarta", "Medan"], correct: 2 },
+            { question: "Alat indra pada manusia yang berfungsi untuk mengecap rasa adalah?", options: ["Mata", "Telinga", "Hidung", "Lidah"], correct: 3 }
+        ];
+
+        let currentCategory = [];
+        let currentIndex = 0;
+        let score = 0;
+
+        const screenWelcome = document.getElementById('screen-welcome');
+        const screenQuiz = document.getElementById('screen-quiz');
+        const screenResult = document.getElementById('screen-result');
+        const scoreBadge = document.getElementById('score-badge');
+        const currentScoreEl = document.getElementById('current-score');
+        const resetBtn = document.getElementById('reset-btn');
+        const questionCategoryEl = document.getElementById('question-category');
+        const questionProgressEl = document.getElementById('question-progress');
+        const progressBarEl = document.getElementById('progress-bar');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const finalScoreEl = document.getElementById('final-score');
+        const resultTitleEl = document.getElementById('result-title');
+        const resultMessageEl = document.getElementById('result-message');
+
+        function startGame(type) {
+            currentCategory = type === 'math' ? mathQuestions : logicQuestions;
+            currentIndex = 0;
+            score = 0;
+            currentScoreEl.innerText = score;
+
+            screenWelcome.classList.add('hidden');
+            screenResult.classList.add('hidden');
+            screenQuiz.classList.remove('hidden');
+            scoreBadge.classList.remove('hidden');
+            resetBtn.classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= currentCategory.length) {
+                endGame();
+                return;
+            }
+
+            const q = currentCategory[currentIndex];
+            questionCategoryEl.innerText = currentCategory === mathQuestions ? "Matematika Seru" : "Pengetahuan & Logika";
+            questionProgressEl.innerText = `Soal ${currentIndex + 1} dari ${currentCategory.length}`;
+            progressBarEl.style.width = `${((currentIndex + 1) / currentCategory.length) * 100}%`;
+            questionTextEl.innerText = q.question;
+
+            optionsContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full p-4 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-2xl text-left font-semibold text-slate-700 hover:text-indigo-700 transition flex items-center justify-between shadow-sm cursor-pointer";
+                btn.innerHTML = `<span>${opt}</span> <i class="fa-solid fa-chevron-right text-xs opacity-50"></i>`;
+                btn.onclick = () => selectAnswer(idx, q.correct);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selectedIdx, correctIdx) {
+            const buttons = optionsContainer.getElementsByTagName('button');
+            
+            for (let b of buttons) {
+                b.disabled = true;
+                b.classList.remove('cursor-pointer');
+            }
+
+            if (selectedIdx === correctIdx) {
+                buttons[selectedIdx].classList.remove('bg-slate-50', 'border-slate-200');
+                buttons[selectedIdx].classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-800');
+                score += 20;
+                currentScoreEl.innerText = score;
+            } else {
+                buttons[selectedIdx].classList.remove('bg-slate-50', 'border-slate-200');
+                buttons[selectedIdx].classList.add('bg-rose-50', 'border-rose-500', 'text-rose-800');
+                buttons[correctIdx].classList.remove('bg-slate-50', 'border-slate-200');
+                buttons[correctIdx].classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-800');
+            }
+
+            setTimeout(() => {
+                currentIndex++;
+                loadQuestion();
+            }, 1300);
+        }
+
+        function endGame() {
+            screenQuiz.classList.add('hidden');
+            screenResult.classList.remove('hidden');
+            scoreBadge.classList.add('hidden');
+            finalScoreEl.innerText = `${score} Poin`;
+
+            if (score === 100) {
+                resultTitleEl.innerText = "Sempurna! Hebat Sekali! 🌟";
+                resultMessageEl.innerText = "Kamu berhasil menjawab semua pertanyaan dengan benar bersama Alisa!";
+            } else if (score >= 60) {
+                resultTitleEl.innerText = "Kerja Bagus! 👍";
+                resultMessageEl.innerText = "Kamu sudah belajar dengan giat. Terus tingkatkan prestasimu!";
+            } else {
+                resultTitleEl.innerText = "Tetap Semangat Belajar! 💪";
+                resultMessageEl.innerText = "Ayo coba lagi dan raih skor tertinggi bersama Alisa.";
+            }
+        }
+
+        function restartGame() {
+            screenQuiz.classList.add('hidden');
+            screenResult.classList.add('hidden');
+            scoreBadge.classList.add('hidden');
+            resetBtn.classList.add('hidden');
+            screenWelcome.classList.remove('hidden');
+        }
+    </script>
+
+</body>
+</html>
